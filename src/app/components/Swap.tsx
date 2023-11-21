@@ -8,6 +8,14 @@ import { Popover, Radio, RadioChangeEvent, Input, Modal } from 'antd';
 import { useState } from 'react';
 import tokenList from 'src/app/tokenList.json';
 
+type Token = {
+  ticker: string;
+  img: string;
+  name: string;
+  address: string;
+  decimals: number;
+};
+
 const Swap = () => {
   const [slippage, setSlippage] = useState(2.5);
   const [tokenOneAmount, setTokenOneAmount] = useState('');
@@ -35,6 +43,15 @@ const Swap = () => {
     setIsOpen(true);
   }
 
+  function modifyToken(i: number) {
+    if (changeToken === 1) {
+      setTokenOne(tokenList[i]);
+    } else {
+      setTokenTwo(tokenList[i]);
+    }
+    setIsOpen(false);
+  }
+
   const settings = (
     <>
       <div>Slippage tolerance</div>
@@ -55,7 +72,25 @@ const Swap = () => {
         footer={null}
         onCancel={() => setIsOpen(false)}
         title="Select a token"
-      ></Modal>
+      >
+        <div className="flex-col ">
+          {tokenList?.map((e: Token, i: number) => {
+            return (
+              <div
+                className="flex mt-4 hover:cursor-pointer hover:bg-indigo-700 transition "
+                key={i}
+                onClick={() => modifyToken(i)}
+              >
+                <img className="w-8 h-8 mt-3" src={e.img} alt={e.ticker} />
+                <div className="flex-col ml-3 mb-6 h-8 items-center ">
+                  <div className=" font-bold text-lg">{e.name}</div>
+                  <div className="">{e.ticker}</div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </Modal>
       <div className="mt-3 h-96 w-1/2 font-bold bg-zinc-300 border-2 border-solid border-zinc-300/75 rounded-xl p-8 flex flex-col relative">
         <div className="flex justify-between mb-4">
           <h4>Swap</h4>
