@@ -4,8 +4,10 @@ import Swap from './components/Swap';
 export default function Home() {
   return (
     <div>
-      <Header></Header>
-      <Swap></Swap>
+      <Header />
+      <div className="flex justify-center">
+        <Swap />
+      </div>
     </div>
   );
 }
