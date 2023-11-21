@@ -106,7 +106,7 @@ const Swap = () => {
         <div className="flex-col h-full">
           <div className="relative">
             <Input
-              className="h-32 mb-3 text-2xl font-bold bg-zinc-800 rounded-xl pr-10"
+              className="h-28 mb-3 text-2xl font-bold bg-zinc-800 rounded-xl pr-10"
               placeholder="0"
               value={tokenOneAmount}
               onChange={changeAmount}
@@ -135,7 +135,7 @@ const Swap = () => {
         </div>
         <div className="relative">
           <Input
-            className="h-32 mb-3 text-2xl font-bold bg-zinc-800 rounded-xl pr-10"
+            className=" h-28 mb-3 text-2xl font-bold bg-zinc-800 rounded-xl pr-10"
             placeholder="0"
             value={tokenTwoAmount}
           />
@@ -151,6 +151,18 @@ const Swap = () => {
             {tokenTwo.ticker}
             <DownOutlined></DownOutlined>
           </div>
+        </div>
+        <div
+          className={`bg-zinc-800 rounded-xl mt-2 h-28 flex mb-5 items-center justify-center ${
+            tokenOneAmount && 'hover:bg-indigo-500'
+          }`}
+        >
+          <button
+            className={`h-10 ${tokenOneAmount && 'cursor-not-allowed'}`}
+            disabled={!tokenOneAmount}
+          >
+            Swap
+          </button>
         </div>
       </div>
     </>
