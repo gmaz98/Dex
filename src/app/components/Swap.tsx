@@ -60,10 +60,15 @@ const Swap = () => {
   }
 
   function modifyToken(i: number) {
+    setPrices(null);
+    setTokenOneAmount('');
+    setTokenTwoAmount('');
     if (changeToken === 1) {
       setTokenOne(tokenList[i]);
+      fetchPrices(tokenList[i].address, tokenTwo.address);
     } else {
       setTokenTwo(tokenList[i]);
+      fetchPrices(tokenOne.address, tokenList[i].address);
     }
     setIsOpen(false);
   }
