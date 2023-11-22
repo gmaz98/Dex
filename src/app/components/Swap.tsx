@@ -8,6 +8,7 @@ import { Popover, Radio, RadioChangeEvent, Input, Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import tokenList from 'src/app/tokenList.json';
 import axios from 'axios';
+import { useAccount, useSendTransaction } from 'wagmi';
 
 type Token = {
   ticker: string;
@@ -32,6 +33,19 @@ const Swap = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [changeToken, setChangeToken] = useState(1);
   const [prices, setPrices] = useState<PricesResponse | null>(null);
+  const [txDetails, setTxDetails] = useState({
+    to: null,
+    data: null,
+    value: ''
+  });
+
+  const { address, isConnected } = useAccount();
+
+  const { data, sendTransaction } = useSendTransaction({
+    to: String(txDetails.to),
+    data: `0x${txDetails.data}`,
+    value: BigInt(txDetails.value)
+  });
 
   function handleSlippageChange(e: RadioChangeEvent) {
     setSlippage(e.target.value);
@@ -80,8 +94,22 @@ const Swap = () => {
         params: { addressOne: one, addressTwo: two }
       }
     );
-    console.log(res.data);
     setPrices(res.data);
+  }
+
+  async function fetchDexSwap() {
+    const allowance =
+      await axios.get(`https://api.1inch.io/v5.2/1/approve/allowance?tokenAddress=
+    ${tokenOne.address}&walletAddress=${address}`);
+
+    if (allowance.data.allowance === '0') {
+      const approve =
+        await axios.get(`https://api.1inch.io/v5.2/1/approve/transaction?tokenAddress=${tokenOne.address}
+      `);
+
+      console.log(approve);
+      setTxDetails(approve.data);
+    }
   }
 
   useEffect(() => {
@@ -100,6 +128,12 @@ const Swap = () => {
       </div>
     </>
   );
+
+  useEffect(() => {
+    if (txDetails.to && isConnected) {
+      sendTransaction();
+    }
+  }, [txDetails]);
 
   return (
     <>
@@ -196,6 +230,7 @@ const Swap = () => {
           <button
             className={`h-10 ${tokenOneAmount && 'cursor-not-allowed'}`}
             disabled={!tokenOneAmount}
+            onClick={fetchDexSwap}
           >
             Swap
           </button>
