@@ -194,7 +194,7 @@ const Swap = () => {
         onCancel={() => setIsOpen(false)}
         title="Select a token"
       >
-        <div className="flex-col ">
+        <div className="flex-col h-screen ">
           {tokenList?.map((e: Token, i: number) => {
             return (
               <div
