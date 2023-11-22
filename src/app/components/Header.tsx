@@ -1,5 +1,5 @@
 import Link from 'next/link';
-
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 const Header = () => {
   return (
     <header className="mt-4 flex items-center justify-between space-x-20 px-5 py-5 font-bold h-100">
@@ -15,8 +15,8 @@ const Header = () => {
         </div>
       </Link>
       <div>Image</div>
-      <div className="bg-blue-800 py-3 px-6 rounded-3xl font-bold hover:cursor-pointer hover:text-indigo-300 transition duration-300 ease-in-out">
-        Connect
+      <div>
+        <ConnectButton></ConnectButton>
       </div>
     </header>
   );
