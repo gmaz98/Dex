@@ -5,8 +5,9 @@ import {
   ArrowDownOutlined
 } from '@ant-design/icons';
 import { Popover, Radio, RadioChangeEvent, Input, Modal } from 'antd';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import tokenList from 'src/app/tokenList.json';
+import axios from 'axios';
 
 type Token = {
   ticker: string;
@@ -16,6 +17,12 @@ type Token = {
   decimals: number;
 };
 
+interface PricesResponse {
+  ratio: number;
+  tokenOne: number;
+  tokenTwo: number;
+}
+
 const Swap = () => {
   const [slippage, setSlippage] = useState(2.5);
   const [tokenOneAmount, setTokenOneAmount] = useState('');
@@ -24,13 +31,18 @@ const Swap = () => {
   const [tokenTwo, setTokenTwo] = useState(tokenList[1]);
   const [isOpen, setIsOpen] = useState(false);
   const [changeToken, setChangeToken] = useState(1);
+  const [prices, setPrices] = useState<PricesResponse | null>(null);
 
   function handleSlippageChange(e: RadioChangeEvent) {
     setSlippage(e.target.value);
   }
 
-  function changeAmount(e: React.ChangeEvent<HTMLInputElement>) {
-    setTokenOneAmount(e.target.value);
+  function changeAmount(e: React.ChangeEvent<HTMLInputElement>): void {
+    const value: string = e.target.value;
+    setTokenOneAmount(value);
+    if (e.target.value && prices) {
+      setTokenTwoAmount((parseFloat(value) * prices.ratio).toFixed(2));
+    }
   }
 
   function switchTokens() {
@@ -51,6 +63,21 @@ const Swap = () => {
     }
     setIsOpen(false);
   }
+
+  async function fetchPrices(one: number, two: number) {
+    const res = await axios.get<PricesResponse>(
+      'http://localhost:3001/tokenPrice',
+      {
+        params: { addressOne: one, addressTwo: two }
+      }
+    );
+    console.log(res.data);
+    setPrices(res.data);
+  }
+
+  useEffect(() => {
+    fetchPrices(tokenList[0].address, tokenList[1].address);
+  }, []);
 
   const settings = (
     <>
