@@ -110,6 +110,20 @@ const Swap = () => {
       console.log(approve);
       setTxDetails(approve.data);
     }
+
+    const tx = await axios.get(
+      `https://api.1inch.io/v5.0/1/swap?fromTokenAddress=${
+        tokenOne.address
+      }&toTokenAddress=${tokenTwo.address}&amount=${tokenOneAmount.padEnd(
+        tokenOne.decimals + tokenOneAmount.length,
+        '0'
+      )}&fromAddress=${address}&slippage=${slippage}`
+    );
+
+    const decimals = Number(`1E${tokenTwo.decimals}`);
+    setTokenTwoAmount((Number(tx.data.toTokenAmount) / decimals).toFixed(2));
+
+    setTxDetails(tx.data.tx);
   }
 
   useEffect(() => {
