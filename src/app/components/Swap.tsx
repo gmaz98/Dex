@@ -4,11 +4,11 @@ import {
   DownOutlined,
   ArrowDownOutlined
 } from '@ant-design/icons';
-import { Popover, Radio, RadioChangeEvent, Input, Modal } from 'antd';
+import { Popover, Radio, RadioChangeEvent, Input, Modal, message } from 'antd';
 import { useEffect, useState } from 'react';
 import tokenList from 'src/app/tokenList.json';
 import axios from 'axios';
-import { useAccount, useSendTransaction } from 'wagmi';
+import { useAccount, useSendTransaction, useWaitForTransaction } from 'wagmi';
 
 type Token = {
   ticker: string;
@@ -26,6 +26,7 @@ interface PricesResponse {
 
 const Swap = () => {
   const [slippage, setSlippage] = useState(2.5);
+  const [messageApi, contextHolder] = message.useMessage();
   const [tokenOneAmount, setTokenOneAmount] = useState('');
   const [tokenTwoAmount, setTokenTwoAmount] = useState('');
   const [tokenOne, setTokenOne] = useState(tokenList[0]);
@@ -45,6 +46,11 @@ const Swap = () => {
     to: String(txDetails.to),
     data: `0x${txDetails.data}`,
     value: BigInt(txDetails.value)
+  });
+
+  //this way we use the data from useSendTransaction to check in useWaitForTransaction!
+  const { isLoading, isSuccess } = useWaitForTransaction({
+    hash: data?.hash
   });
 
   function handleSlippageChange(e: RadioChangeEvent) {
@@ -147,10 +153,41 @@ const Swap = () => {
     if (txDetails.to && isConnected) {
       sendTransaction();
     }
-  }, [txDetails]);
+  }, [isConnected, sendTransaction, txDetails]);
+
+  useEffect(() => {
+    messageApi.destroy();
+    if (isLoading) {
+      messageApi.open({
+        type: 'loading',
+        content: 'transaction is pending',
+        duration: 0
+      });
+    }
+  }, [isLoading]);
+
+  useEffect(() => {
+    messageApi.destroy();
+    if (isSuccess) {
+      messageApi.open({
+        type: 'success',
+        content: 'Transaction Successful',
+        duration: 1.5
+      });
+
+      // isSuccess equals false but we have some transaction detail, otherwise it could be the initial mount
+    } else if (txDetails.to) {
+      messageApi.open({
+        type: 'error',
+        content: 'Transaction Failed',
+        duration: 1.5
+      });
+    }
+  }, [isSuccess]);
 
   return (
     <>
+      {contextHolder}
       <Modal
         open={isOpen}
         footer={null}
